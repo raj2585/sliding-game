@@ -1,0 +1,105 @@
+Build a polished, responsive React project: a Sliding Puzzle Game (15-puzzle / 24-puzzle) themed around Jodhpur.
+
+Core Idea
+
+A grid-based sliding puzzle where an image related to Jodhpur is split into tiles, shuffled, and the user must reorder the tiles to form the original picture.
+
+Gameplay Requirements
+
+Puzzle sizes: 4×4 (15-tile) and 5×5 (24-tile).
+
+The AI can add more sizes if it improves UX.
+
+Shuffle must generate only solvable permutations.
+
+The empty tile should behave like the traditional sliding puzzle.
+
+Tiles should slide smoothly (animation preferred).
+
+Images
+
+Use 4–6 high-quality images of Jodhpur/Rajasthan such as:
+
+Mehrangarh Fort
+
+Blue City houses
+
+Ghanta Ghar
+
+Umaid Bhavan
+
+Jaswant Thada
+
+Stepwell (Toorji Ka Jhalra)
+
+The AI may choose and load these images however it prefers.
+
+UI & Features
+
+Clean, modern UI with slight playful vibe.
+
+A home screen to choose:
+
+puzzle size (4×4, 5×5)
+
+image
+
+A preview of the final image.
+
+Timer + move counter in the game UI.
+
+A restart/shuffle button.
+
+A small win animation or modal when the puzzle is solved.
+
+Persistent best-scores using local storage (optional but encouraged).
+
+Tech & Structure
+
+Use React with modern tooling (Vite, Next.js, or CRA — up to the builder).
+
+Use TailwindCSS for styling.
+
+Use Framer Motion for small animations (tile slide, fade-ins, modal).
+
+Make the game fully responsive, working smoothly on phones.
+
+Visual Style Goals
+
+Smooth tile sliding animations.
+
+Subtle shadows and rounded corners.
+
+Elegant typography and a warm color palette.
+
+A design that feels polished and friendly.
+
+Freedom for the AI
+
+You are free to:
+
+Organize components however you want
+
+Choose animation style
+
+Pick suitable Jodhpur images
+
+Add small improvements to UX
+
+Adjust layout for mobile
+
+Add sound or haptics (optional)
+
+Goal
+
+Deliver a beautiful, responsive, well-structured React game that:
+
+feels fun to play
+
+looks visually appealing
+
+works on all devices
+
+showcases interactive logic, UI skill, and animation polish
+
+No hard constraints — focus on creating a high-quality sliding puzzle experience.
