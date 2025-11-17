@@ -1,8 +1,3 @@
-import { slideTiles } from "@/lib/puzzle-utils";
-<<<<<<< HEAD
-=======
-import { useLocation } from "wouter"; 
->>>>>>> 321a53ad201c78f4a4003438de9c537237dd6003
 import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -384,8 +379,8 @@ export default function Game() {
         imageSrc={imageSrc}
         imageName={imageName}
         playerName={activePlayerName}
-        onPlayAgain={handleRestart}
-        onChangeImage={() => setLocation("/select")}
+        onMenu={() => setLocation("/select")}
+        onQuit={() => setLocation("/")}
         isNewBest={justSetPersonalBest}
       />
     </div>
