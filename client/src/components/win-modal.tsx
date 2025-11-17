@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Trophy, Sparkles, RotateCcw, Home } from "lucide-react";
+import { Trophy, Home, X } from "lucide-react";
 
 interface WinModalProps {
   open: boolean;
@@ -12,9 +12,10 @@ interface WinModalProps {
   imageSrc: string;
   imageName: string;
   playerName?: string;
-  onPlayAgain: () => void;
-  onChangeImage: () => void;
-  isNewBest: boolean;
+  // New: only two actions required
+  onMenu: () => void;
+  onQuit: () => void;
+  isNewBest?: boolean;
 }
 
 export function WinModal({
@@ -25,9 +26,9 @@ export function WinModal({
   imageSrc,
   imageName,
   playerName,
-  onPlayAgain,
-  onChangeImage,
-  isNewBest,
+  onMenu,
+  onQuit,
+  isNewBest = false,
 }: WinModalProps) {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -71,20 +72,14 @@ export function WinModal({
                       transition={{ delay: 0.4 }}
                       className="flex items-center justify-center gap-2 mt-2 text-primary"
                     >
-                      <Sparkles className="w-4 h-4" />
                       <span className="font-medium text-sm">New Best Score!</span>
-                      <Sparkles className="w-4 h-4" />
                     </motion.div>
                   )}
                 </div>
               </div>
 
               <Card className="overflow-hidden">
-                <img
-                  src={imageSrc}
-                  alt={imageName}
-                  className="w-full aspect-square object-cover"
-                />
+                <img src={imageSrc} alt={imageName} className="w-full aspect-square object-cover" />
                 <div className="p-4 text-center bg-muted/30">
                   <p className="font-medium text-foreground">{imageName}</p>
                 </div>
@@ -106,22 +101,13 @@ export function WinModal({
               </div>
 
               <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={onChangeImage}
-                  data-testid="button-change-puzzle"
-                >
+                <Button variant="outline" className="flex-1" onClick={onMenu} data-testid="button-go-menu">
                   <Home className="w-4 h-4 mr-2" />
-                  New Puzzle
+                  Menu
                 </Button>
-                <Button
-                  className="flex-1"
-                  onClick={onPlayAgain}
-                  data-testid="button-play-again"
-                >
-                  <RotateCcw className="w-4 h-4 mr-2" />
-                  Play Again
+                <Button className="flex-1" onClick={onQuit} data-testid="button-quit">
+                  <X className="w-4 h-4 mr-2" />
+                  Quit
                 </Button>
               </div>
             </motion.div>

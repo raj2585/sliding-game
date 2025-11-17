@@ -1,3 +1,4 @@
+import { slideTiles } from "@/lib/puzzle-utils";
 import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
