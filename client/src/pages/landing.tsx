@@ -1,163 +1,124 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Trophy, Users, ArrowRight } from "lucide-react";
-
+import { ArrowDownRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { puzzleImages } from "@shared/schema";
-import {
-  getActivePlayer,
-  getLeaderboard,
-  registerPlayer,
-  setActivePlayer,
-} from "@/lib/storage";
 
-const MIN_NAME_LENGTH = 3;
+interface Ball {
+  id: number;
+  size: number;
+  x: number;
+  y: number;
+  duration: number;
+  delay: number;
+  colors: [string, string];
+}
+
+const BALL_COUNT = 36;
+const COLOR_PALETTE: Array<[string, string]> = [
+  ["#FDE68A", "#F97316"],
+  ["#A5B4FC", "#6366F1"],
+  ["#7DD3FC", "#0EA5E9"],
+  ["#FBCFE8", "#EC4899"],
+  ["#FEE2E2", "#F87171"],
+  ["#C4B5FD", "#8B5CF6"],
+];
 
 export default function Landing() {
   const [, setLocation] = useLocation();
-  const [username, setUsername] = useState(() => getActivePlayer() ?? "");
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const leaderboard = useMemo(() => getLeaderboard(), [username]);
-
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    const trimmed = username.trim();
-
-    if (trimmed.length < MIN_NAME_LENGTH) {
-      setError(`Enter at least ${MIN_NAME_LENGTH} characters`);
-      return;
-    }
-
-    setSubmitting(true);
-    registerPlayer(trimmed);
-    setActivePlayer(trimmed);
-    setSubmitting(false);
-    setError("");
-    setLocation("/select");
-  };
+  const balls = useMemo(() => createBalls(), []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/40 flex items-center justify-center px-4 py-10">
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-4xl grid gap-8 md:grid-cols-2"
-      >
-        <Card className="p-8 space-y-6 shadow-2xl border-primary/10">
-          <div className="space-y-2">
-            <p className="uppercase tracking-wide text-xs text-primary font-semibold">
-              Welcome to the Jodhpur Puzzle League
+    <div className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
+      <BallPitBackground balls={balls} />
+
+      <div className="relative z-10 flex min-h-screen flex-col">
+        <header className="px-6 py-8 flex items-center justify-between text-sm uppercase tracking-[0.2em] text-white/70">
+          <span>Jodhpur Puzzle</span>
+          <span className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4" />
+            Season 01
+          </span>
+        </header>
+
+        <main className="flex-1 flex flex-col items-center justify-center px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center max-w-3xl space-y-6"
+          >
+            <p className="text-sm font-semibold tracking-[0.3em] text-white/70 uppercase">
+              A playful tribute to the Blue City
             </p>
-            <h1 className="font-serif text-4xl text-foreground">
-              Claim your unique explorer name
+            <h1 className="text-5xl md:text-6xl font-serif leading-tight">
+              Drift through color, tap to begin the puzzle journey.
             </h1>
-            <p className="text-muted-foreground text-sm">
-              Usernames are unique across the leaderboard. Choose wisely and start building your legacy.
+            <p className="text-lg text-white/80">
+              Inspired by the floating ballpit backdrop from React Bits, this intro warms you up before you claim your unique explorer identity.
             </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <label
-                htmlFor="username"
-                className="text-sm font-medium text-muted-foreground"
-              >
-                Explorer name
-              </label>
-              <Input
-                id="username"
-                value={username}
-                maxLength={24}
-                autoComplete="off"
-                onChange={(event) => {
-                  setUsername(event.target.value);
-                  if (error) setError("");
-                }}
-                placeholder="e.g. DesertFox, BlueCityDiva"
-              />
-              {error && <p className="text-sm text-destructive">{error}</p>}
-            </div>
-
             <Button
-              type="submit"
-              className="w-full h-12 text-lg"
-              disabled={submitting}
-              data-testid="button-enter-gallery"
+              size="lg"
+              className="h-14 px-10 text-lg gap-3 bg-white/90 text-slate-900 hover:bg-white"
+              onClick={() => setLocation("/enter")}
+              data-testid="button-begin"
             >
-              Enter the Gallery
-              <ArrowRight className="w-4 h-4 ml-2" />
+              Begin
+              <ArrowDownRight className="w-5 h-5" />
             </Button>
-          </form>
+          </motion.div>
+        </main>
 
-          <div className="rounded-xl bg-muted/40 p-4 border border-muted">
-            <div className="flex items-center gap-3 mb-2">
-              <Users className="w-5 h-5 text-primary" />
-              <p className="font-medium">How it works</p>
-            </div>
-            <ul className="text-sm text-muted-foreground space-y-2 list-disc pl-5">
-              <li>Pick a unique username (one per player)</li>
-              <li>Choose a landmark puzzle in the next step</li>
-              <li>Climb the leaderboard with your best time</li>
-            </ul>
-          </div>
-        </Card>
-
-        <Card className="p-6 bg-card/80 backdrop-blur shadow-xl border-muted">
-          <div className="flex items-center gap-3 mb-6">
-            <Trophy className="w-6 h-6 text-primary" />
-            <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                Global Leaderboard
-              </p>
-              <p className="font-semibold text-lg text-foreground">Top explorers</p>
-            </div>
-          </div>
-
-          {leaderboard.length === 0 ? (
-            <div className="text-center py-10 text-muted-foreground">
-              <p>No scores yet. Be the first to set a record!</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {leaderboard.slice(0, 8).map((entry, index) => (
-                <div
-                  key={entry.username}
-                  className="rounded-lg border border-border/60 p-4 flex items-center justify-between gap-4"
-                >
-                  <div className="flex-1">
-                    <p className="font-semibold text-foreground">
-                      #{index + 1} {entry.username}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {entry.puzzleSize} · {puzzleImages[entry.imageId].name}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-mono text-lg text-foreground">
-                      {formatTime(entry.bestTime)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {entry.bestMoves} moves
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </Card>
-      </motion.div>
+        <footer className="px-6 py-6 text-sm text-white/60 flex justify-between">
+          <span>Crafted with ❤️ for puzzle lovers</span>
+          <span>Scroll down to skip the animation</span>
+        </footer>
+      </div>
     </div>
   );
 }
 
-function formatTime(totalSeconds: number) {
-  const mins = Math.floor(totalSeconds / 60);
-  const secs = totalSeconds % 60;
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
+function BallPitBackground({ balls }: { balls: Ball[] }) {
+  return (
+    <div className="absolute inset-0">
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-950 to-black opacity-90" />
+      {balls.map((ball) => (
+        <div
+          key={ball.id}
+          className="ballpit-orb mix-blend-screen"
+          style={{
+            width: ball.size,
+            height: ball.size,
+            left: `${ball.x}%`,
+            top: `${ball.y}%`,
+            background: `radial-gradient(circle at 30% 30%, ${ball.colors[0]}, ${ball.colors[1]})`,
+            animationDuration: `${ball.duration}s`,
+            animationDelay: `${ball.delay}s`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function createBalls(): Ball[] {
+  return Array.from({ length: BALL_COUNT }, (_, idx) => {
+    const size = Math.round(80 + Math.random() * 140);
+    const x = Math.random() * 100;
+    const y = Math.random() * 100;
+    const duration = 16 + Math.random() * 16;
+    const delay = Math.random() * 12;
+    const colors = COLOR_PALETTE[idx % COLOR_PALETTE.length];
+
+    return {
+      id: idx,
+      size,
+      x,
+      y,
+      duration,
+      delay,
+      colors,
+    };
+  });
 }
 

@@ -15,7 +15,7 @@ export default function Home() {
   useEffect(() => {
     const stored = getActivePlayer();
     if (!stored) {
-      setLocation("/");
+      setLocation("/enter");
       return;
     }
     setPlayerName(stored);
@@ -67,7 +67,7 @@ export default function Home() {
               <Button
                 variant="outline"
                 className="gap-2"
-                onClick={() => setLocation("/")}
+                onClick={() => setLocation("/enter")}
                 data-testid="button-change-player"
               >
                 <LogOut className="w-4 h-4" />

@@ -228,7 +228,7 @@ export default function Game() {
   useEffect(() => {
     const active = getActivePlayer();
     if (!active) {
-      setLocation("/");
+      setLocation("/enter");
       return;
     }
     setPlayerName(active);
