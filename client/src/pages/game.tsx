@@ -8,22 +8,7 @@ import { puzzleImages, type PuzzleImageId, type PuzzleSize, type GameState, type
 import { PuzzleTileComponent } from "@/components/puzzle-tile";
 import { WinModal } from "@/components/win-modal";
 import { getBestScores, saveBestScore } from "@/lib/storage";
-
-import mehrangarhImg from "@assets/stock_images/mehrangarh_fort_jodh_e91f273d.jpg";
-import blueCityImg from "@assets/stock_images/jodhpur_blue_city_ae_458ca24a.jpg";
-import ghantaGharImg from "@assets/stock_images/ghanta_ghar_clock_to_35fa07b3.jpg";
-import umaidBhavanImg from "@assets/stock_images/umaid_bhavan_palace__3cd5570e.jpg";
-import jaswantThadaImg from "@assets/stock_images/jaswant_thada_white__a863f28a.jpg";
-import stepwellImg from "@assets/stock_images/toorji_ka_jhalra_ste_72c4e8ae.jpg";
-
-const imageMap: Record<PuzzleImageId, string> = {
-  mehrangarh: mehrangarhImg,
-  blueCity: blueCityImg,
-  ghantaGhar: ghantaGharImg,
-  umaidBhavan: umaidBhavanImg,
-  jaswantThada: jaswantThadaImg,
-  stepwell: stepwellImg,
-};
+import { cn } from "@/lib/utils";
 
 function createSolvableShuffle(size: number): number[] {
   const totalTiles = size * size;
@@ -61,10 +46,19 @@ function createSolvableShuffle(size: number): number[] {
 
 export default function Game() {
   const [, setLocation] = useLocation();
-  const params = new URLSearchParams(window.location.search);
-  const imageId = (params.get("image") || "mehrangarh") as PuzzleImageId;
-  const puzzleSize = (params.get("size") || "4x4") as PuzzleSize;
-  const gridSize = puzzleSize === "4x4" ? 4 : 5;
+  const search = typeof window !== "undefined" ? window.location.search : "";
+  const params = new URLSearchParams(search);
+
+  const isValidImageId = (value: string | null): value is PuzzleImageId => {
+    if (!value) return false;
+    return Object.prototype.hasOwnProperty.call(puzzleImages, value);
+  };
+
+  const imageParam = params.get("image");
+  const imageId = isValidImageId(imageParam) ? imageParam : ("mehrangarh" as PuzzleImageId);
+  const playerNameFromQuery = params.get("player")?.trim() ?? "";
+  const puzzleSize: PuzzleSize = "4x4";
+  const gridSize = 4;
 
   const [gameState, setGameState] = useState<GameState>(() => initializeGame(imageId, puzzleSize));
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -72,7 +66,6 @@ export default function Game() {
   const [showWinModal, setShowWinModal] = useState(false);
 
   function initializeGame(image: PuzzleImageId, size: PuzzleSize): GameState {
-    const gridSize = size === "4x4" ? 4 : 5;
     const totalTiles = gridSize * gridSize;
     const shuffled = createSolvableShuffle(gridSize);
     
@@ -206,9 +199,16 @@ export default function Game() {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
+  useEffect(() => {
+    if (!playerNameFromQuery) {
+      setLocation("/");
+    }
+  }, [playerNameFromQuery, setLocation]);
+
   const bestScore = getBestScores()[puzzleSize]?.[imageId];
-  const imageSrc = imageMap[imageId];
+  const imageSrc = puzzleImages[imageId].url;
   const imageName = puzzleImages[imageId].name;
+  const activePlayerName = playerNameFromQuery || "Explorer";
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -223,7 +223,14 @@ export default function Game() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
 
-          <div className="flex items-center gap-4 md:gap-8">
+          <div className="flex flex-wrap items-center gap-4 md:gap-8 justify-center">
+            <Card className={cn("px-4 py-2 min-w-[140px] text-center", !playerNameFromQuery && "opacity-70")}>
+              <div className="text-xs text-muted-foreground">Player</div>
+              <div className="text-lg font-semibold" data-testid="text-player-name-value">
+                {activePlayerName}
+              </div>
+            </Card>
+
             <Card className="px-4 py-2">
               <div className="text-xs text-muted-foreground text-center">Time</div>
               <div className="text-xl font-mono font-semibold tabular-nums" data-testid="text-timer">
@@ -342,6 +349,7 @@ export default function Game() {
         moves={gameState.moves}
         imageSrc={imageSrc}
         imageName={imageName}
+        playerName={activePlayerName}
         onPlayAgain={handleRestart}
         onChangeImage={() => setLocation("/")}
         isNewBest={

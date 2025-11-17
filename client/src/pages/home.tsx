@@ -1,37 +1,38 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { puzzleImages, type PuzzleImageId, type PuzzleSize } from "@shared/schema";
-import { LayoutGrid, Grid3x3 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { puzzleImages, type PuzzleImageId } from "@shared/schema";
 import { motion } from "framer-motion";
-
-import mehrangarhImg from "@assets/stock_images/mehrangarh_fort_jodh_e91f273d.jpg";
-import blueCityImg from "@assets/stock_images/jodhpur_blue_city_ae_458ca24a.jpg";
-import ghantaGharImg from "@assets/stock_images/ghanta_ghar_clock_to_35fa07b3.jpg";
-import umaidBhavanImg from "@assets/stock_images/umaid_bhavan_palace__3cd5570e.jpg";
-import jaswantThadaImg from "@assets/stock_images/jaswant_thada_white__a863f28a.jpg";
-import stepwellImg from "@assets/stock_images/toorji_ka_jhalra_ste_72c4e8ae.jpg";
-
-const imageMap: Record<PuzzleImageId, string> = {
-  mehrangarh: mehrangarhImg,
-  blueCity: blueCityImg,
-  ghantaGhar: ghantaGharImg,
-  umaidBhavan: umaidBhavanImg,
-  jaswantThada: jaswantThadaImg,
-  stepwell: stepwellImg,
-};
 
 export default function Home() {
   const [, setLocation] = useLocation();
   const [selectedImage, setSelectedImage] = useState<PuzzleImageId | null>(null);
-  const [selectedSize, setSelectedSize] = useState<PuzzleSize>("4x4");
+  const [playerName, setPlayerName] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem("jodhpur-puzzle-player") ?? "";
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("jodhpur-puzzle-player", playerName);
+  }, [playerName]);
 
   const handleStartGame = () => {
-    if (selectedImage) {
-      setLocation(`/game?image=${selectedImage}&size=${selectedSize}`);
+    const trimmedName = playerName.trim();
+    if (selectedImage && trimmedName) {
+      const params = new URLSearchParams({
+        image: selectedImage,
+        size: "4x4",
+        player: trimmedName,
+      });
+      setLocation(`/game?${params.toString()}`);
     }
   };
+
+  const isStartDisabled = !selectedImage || !playerName.trim();
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 md:p-8">
@@ -51,6 +52,26 @@ export default function Home() {
         </div>
 
         <div className="space-y-8">
+          <div className="max-w-2xl mx-auto space-y-4">
+            <h2 className="text-2xl font-serif font-semibold text-center" data-testid="text-player-name">
+              Who&apos;s playing today?
+            </h2>
+            <div className="space-y-2">
+              <Label htmlFor="player-name" className="text-muted-foreground text-sm">
+                Enter your name to personalize the leaderboard.
+              </Label>
+              <Input
+                id="player-name"
+                value={playerName}
+                onChange={(event) => setPlayerName(event.target.value)}
+                placeholder="e.g. Aditi or Team Blue"
+                maxLength={32}
+                autoComplete="off"
+                data-testid="input-player-name"
+              />
+            </div>
+          </div>
+
           <div>
             <h2 className="text-2xl font-serif font-semibold mb-6 text-center" data-testid="text-select-image">
               Select a Landmark
@@ -71,7 +92,7 @@ export default function Home() {
                     data-testid={`card-image-${id}`}
                   >
                     <img
-                      src={imageMap[id as PuzzleImageId]}
+                      src={image.url}
                       alt={image.name}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                     />
@@ -87,38 +108,10 @@ export default function Home() {
             </div>
           </div>
 
-          <div>
-            <h2 className="text-2xl font-serif font-semibold mb-6 text-center" data-testid="text-select-size">
-              Choose Difficulty
-            </h2>
-            <div className="flex gap-4 justify-center">
-              <Button
-                variant={selectedSize === "4x4" ? "default" : "outline"}
-                size="lg"
-                className="min-w-[140px] h-16 flex flex-col items-center justify-center gap-1"
-                onClick={() => setSelectedSize("4x4")}
-                data-testid="button-size-4x4"
-              >
-                <Grid3x3 className="w-5 h-5" />
-                <span className="font-medium">4×4 Grid</span>
-              </Button>
-              <Button
-                variant={selectedSize === "5x5" ? "default" : "outline"}
-                size="lg"
-                className="min-w-[140px] h-16 flex flex-col items-center justify-center gap-1"
-                onClick={() => setSelectedSize("5x5")}
-                data-testid="button-size-5x5"
-              >
-                <LayoutGrid className="w-5 h-5" />
-                <span className="font-medium">5×5 Grid</span>
-              </Button>
-            </div>
-          </div>
-
           <div className="flex justify-center pt-4">
             <Button
               size="lg"
-              disabled={!selectedImage}
+              disabled={isStartDisabled}
               onClick={handleStartGame}
               className="min-w-[200px] h-14 text-lg"
               data-testid="button-start-game"

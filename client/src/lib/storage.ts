@@ -1,14 +1,18 @@
 import type { BestScores, PuzzleSize, PuzzleImageId, BestScore } from "@shared/schema";
 
 const STORAGE_KEY = "jodhpur-puzzle-best-scores";
+const DEFAULT_SCORES: BestScores = { "4x4": {} };
 
 export function getBestScores(): BestScores {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return { "4x4": {}, "5x5": {} };
-    return JSON.parse(stored);
+    if (!stored) return DEFAULT_SCORES;
+    const parsed = JSON.parse(stored);
+    return {
+      "4x4": parsed?.["4x4"] ?? {},
+    };
   } catch {
-    return { "4x4": {}, "5x5": {} };
+    return DEFAULT_SCORES;
   }
 }
 
@@ -20,6 +24,9 @@ export function saveBestScore(
 ): void {
   try {
     const scores = getBestScores();
+    if (!scores[size]) {
+      scores[size] = {};
+    }
     const currentBest = scores[size][imageId];
 
     const isNewBest =

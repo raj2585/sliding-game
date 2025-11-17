@@ -11,6 +11,7 @@ interface WinModalProps {
   moves: number;
   imageSrc: string;
   imageName: string;
+  playerName?: string;
   onPlayAgain: () => void;
   onChangeImage: () => void;
   isNewBest: boolean;
@@ -23,6 +24,7 @@ export function WinModal({
   moves,
   imageSrc,
   imageName,
+  playerName,
   onPlayAgain,
   onChangeImage,
   isNewBest,
@@ -59,6 +61,9 @@ export function WinModal({
                   <h2 className="font-serif text-3xl font-bold text-foreground" data-testid="text-congratulations">
                     Puzzle Complete!
                   </h2>
+                  <p className="text-sm text-muted-foreground mt-1" data-testid="text-player-celebration">
+                    {playerName ? `Way to go, ${playerName}!` : "Way to go!"}
+                  </p>
                   {isNewBest && (
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
