@@ -1,124 +1,131 @@
 import { useMemo } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowDownRight, Sparkles } from "lucide-react";
+import { ArrowRight, Crown, Compass, Timer } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { puzzleImages } from "@shared/schema";
 
-interface Ball {
-  id: number;
-  size: number;
-  x: number;
-  y: number;
-  duration: number;
-  delay: number;
-  colors: [string, string];
-}
-
-const BALL_COUNT = 36;
-const COLOR_PALETTE: Array<[string, string]> = [
-  ["#FDE68A", "#F97316"],
-  ["#A5B4FC", "#6366F1"],
-  ["#7DD3FC", "#0EA5E9"],
-  ["#FBCFE8", "#EC4899"],
-  ["#FEE2E2", "#F87171"],
-  ["#C4B5FD", "#8B5CF6"],
+const highlights = [
+  {
+    icon: Crown,
+    title: "Global League",
+    description: "Secure a unique explorer name and climb the leaderboard.",
+  },
+  {
+    icon: Timer,
+    title: "Precision Timing",
+    description: "Race against the clock with buttery-smooth tile animations.",
+  },
+  {
+    icon: Compass,
+    title: "Iconic Landmarks",
+    description: "Rebuild Mehrangarh, Blue City lanes, and more Jodhpur gems.",
+  },
 ];
 
 export default function Landing() {
   const [, setLocation] = useLocation();
-  const balls = useMemo(() => createBalls(), []);
+  const featuredImages = useMemo(() => Object.values(puzzleImages).slice(0, 3), []);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
-      <BallPitBackground balls={balls} />
-
-      <div className="relative z-10 flex min-h-screen flex-col">
-        <header className="px-6 py-8 flex items-center justify-between text-sm uppercase tracking-[0.2em] text-white/70">
+    <div className="min-h-screen bg-gradient-to-b from-background via-[#fbf7f0] to-white">
+      <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-10 px-6 py-12 md:px-10">
+        <header className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-muted-foreground">
           <span>Jodhpur Puzzle</span>
-          <span className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4" />
-            Season 01
-          </span>
+          <span>Season 01</span>
         </header>
 
-        <main className="flex-1 flex flex-col items-center justify-center px-6">
+        <div className="grid flex-1 gap-10 md:grid-cols-[1.05fr,0.95fr] items-center">
           <motion.div
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center max-w-3xl space-y-6"
+            transition={{ duration: 0.6 }}
+            className="space-y-8"
           >
-            <p className="text-sm font-semibold tracking-[0.3em] text-white/70 uppercase">
-              A playful tribute to the Blue City
+            <p className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1 text-sm font-medium text-primary">
+              Crafted for calm focus
             </p>
-            <h1 className="text-5xl md:text-6xl font-serif leading-tight">
-              Drift through color, tap to begin the puzzle journey.
-            </h1>
-            <p className="text-lg text-white/80">
-              Inspired by the floating ballpit backdrop from React Bits, this intro warms you up before you claim your unique explorer identity.
-            </p>
-            <Button
-              size="lg"
-              className="h-14 px-10 text-lg gap-3 bg-white/90 text-slate-900 hover:bg-white"
-              onClick={() => setLocation("/enter")}
-              data-testid="button-begin"
-            >
-              Begin
-              <ArrowDownRight className="w-5 h-5" />
-            </Button>
-          </motion.div>
-        </main>
 
-        <footer className="px-6 py-6 text-sm text-white/60 flex justify-between">
-          <span>Crafted with ❤️ for puzzle lovers</span>
-          <span>Scroll down to skip the animation</span>
+            <div className="space-y-4">
+              <h1 className="font-serif text-4xl leading-tight text-foreground md:text-5xl">
+                Slide into Jodhpur&apos;s heritage with a puzzle built for slow mornings and sharp minds.
+              </h1>
+              <p className="text-lg text-muted-foreground">
+                Match the tiles, savor the textures, and log a personal best. Your journey starts by choosing a name that no other explorer can claim.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-4">
+              <Button
+                size="lg"
+                className="h-14 px-10 text-lg"
+                onClick={() => setLocation("/enter")}
+                data-testid="button-begin"
+              >
+                Begin
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+              <div className="flex flex-col justify-center">
+                <span className="text-sm font-semibold text-foreground">One tap away</span>
+                <span className="text-sm text-muted-foreground">Set your name, then pick a landmark</span>
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {highlights.map((item) => (
+                <Card key={item.title} className="p-4 space-y-3">
+                  <item.icon className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="font-semibold text-foreground">{item.title}</p>
+                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="relative"
+          >
+            <Card className="relative overflow-hidden border-primary/20 bg-card/80 backdrop-blur">
+              <div className="grid gap-3 p-6">
+                {featuredImages.map((image) => (
+                  <div
+                    key={image.id}
+                    className="rounded-2xl overflow-hidden border border-border/60 shadow-sm"
+                  >
+                    <img
+                      src={image.url}
+                      alt={image.name}
+                      className="h-36 w-full object-cover"
+                    />
+                    <div className="p-4">
+                      <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                        {image.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground/80">
+                        Handpicked from the Blue City archives
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+            <div className="pointer-events-none absolute -left-8 top-6 h-24 w-24 rounded-full bg-primary/20 blur-3xl md:-left-12" />
+            <div className="pointer-events-none absolute -right-10 bottom-10 h-32 w-32 rounded-full bg-accent/30 blur-3xl" />
+          </motion.div>
+        </div>
+
+        <footer className="text-xs uppercase tracking-[0.3em] text-muted-foreground flex justify-between">
+          <span>Built in Rajasthan hues</span>
+          <span>Optimized for calm play</span>
         </footer>
       </div>
     </div>
   );
 }
-
-function BallPitBackground({ balls }: { balls: Ball[] }) {
-  return (
-    <div className="absolute inset-0">
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-950 to-black opacity-90" />
-      {balls.map((ball) => (
-        <div
-          key={ball.id}
-          className="ballpit-orb mix-blend-screen"
-          style={{
-            width: ball.size,
-            height: ball.size,
-            left: `${ball.x}%`,
-            top: `${ball.y}%`,
-            background: `radial-gradient(circle at 30% 30%, ${ball.colors[0]}, ${ball.colors[1]})`,
-            animationDuration: `${ball.duration}s`,
-            animationDelay: `${ball.delay}s`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function createBalls(): Ball[] {
-  return Array.from({ length: BALL_COUNT }, (_, idx) => {
-    const size = Math.round(80 + Math.random() * 140);
-    const x = Math.random() * 100;
-    const y = Math.random() * 100;
-    const duration = 16 + Math.random() * 16;
-    const delay = Math.random() * 12;
-    const colors = COLOR_PALETTE[idx % COLOR_PALETTE.length];
-
-    return {
-      id: idx,
-      size,
-      x,
-      y,
-      duration,
-      delay,
-      colors,
-    };
-  });
-}
-
