@@ -2,37 +2,35 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { puzzleImages, type PuzzleImageId } from "@shared/schema";
 import { motion } from "framer-motion";
+import { UserCircle, LogOut } from "lucide-react";
+import { getActivePlayer } from "@/lib/storage";
 
 export default function Home() {
   const [, setLocation] = useLocation();
   const [selectedImage, setSelectedImage] = useState<PuzzleImageId | null>(null);
-  const [playerName, setPlayerName] = useState(() => {
-    if (typeof window === "undefined") return "";
-    return localStorage.getItem("jodhpur-puzzle-player") ?? "";
-  });
+  const [playerName, setPlayerName] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    localStorage.setItem("jodhpur-puzzle-player", playerName);
-  }, [playerName]);
+    const stored = getActivePlayer();
+    if (!stored) {
+      setLocation("/");
+      return;
+    }
+    setPlayerName(stored);
+  }, [setLocation]);
 
   const handleStartGame = () => {
-    const trimmedName = playerName.trim();
-    if (selectedImage && trimmedName) {
+    if (selectedImage && playerName) {
       const params = new URLSearchParams({
         image: selectedImage,
-        size: "4x4",
-        player: trimmedName,
       });
       setLocation(`/game?${params.toString()}`);
     }
   };
 
-  const isStartDisabled = !selectedImage || !playerName.trim();
+  const isStartDisabled = !selectedImage || !playerName;
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 md:p-8">
@@ -52,25 +50,32 @@ export default function Home() {
         </div>
 
         <div className="space-y-8">
-          <div className="max-w-2xl mx-auto space-y-4">
-            <h2 className="text-2xl font-serif font-semibold text-center" data-testid="text-player-name">
-              Who&apos;s playing today?
-            </h2>
-            <div className="space-y-2">
-              <Label htmlFor="player-name" className="text-muted-foreground text-sm">
-                Enter your name to personalize the leaderboard.
-              </Label>
-              <Input
-                id="player-name"
-                value={playerName}
-                onChange={(event) => setPlayerName(event.target.value)}
-                placeholder="e.g. Aditi or Team Blue"
-                maxLength={32}
-                autoComplete="off"
-                data-testid="input-player-name"
-              />
-            </div>
+          {playerName && (
+            <div className="max-w-3xl mx-auto">
+            <Card className="p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <UserCircle className="w-10 h-10 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground uppercase tracking-wide">
+                    Explorer
+                  </p>
+                  <p className="text-xl font-semibold text-foreground" data-testid="text-player-name">
+                    {playerName}
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => setLocation("/")}
+                data-testid="button-change-player"
+              >
+                <LogOut className="w-4 h-4" />
+                Switch Player
+              </Button>
+            </Card>
           </div>
+          )}
 
           <div>
             <h2 className="text-2xl font-serif font-semibold mb-6 text-center" data-testid="text-select-image">

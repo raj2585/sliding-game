@@ -4,10 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, RotateCcw, Eye, Trophy } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { puzzleImages, type PuzzleImageId, type PuzzleSize, type GameState, type PuzzleTile } from "@shared/schema";
+import {
+  puzzleImages,
+  type PuzzleImageId,
+  type PuzzleSize,
+  type GameState,
+  type PuzzleTile,
+  type BestScore,
+} from "@shared/schema";
 import { PuzzleTileComponent } from "@/components/puzzle-tile";
 import { WinModal } from "@/components/win-modal";
-import { getBestScores, saveBestScore } from "@/lib/storage";
+import {
+  getActivePlayer,
+  getPlayerPuzzleBest,
+  savePlayerBestScore,
+} from "@/lib/storage";
 import { cn } from "@/lib/utils";
 
 function createSolvableShuffle(size: number): number[] {
@@ -56,7 +67,6 @@ export default function Game() {
 
   const imageParam = params.get("image");
   const imageId = isValidImageId(imageParam) ? imageParam : ("mehrangarh" as PuzzleImageId);
-  const playerNameFromQuery = params.get("player")?.trim() ?? "";
   const puzzleSize: PuzzleSize = "4x4";
   const gridSize = 4;
 
@@ -64,6 +74,11 @@ export default function Game() {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [showPreview, setShowPreview] = useState(false);
   const [showWinModal, setShowWinModal] = useState(false);
+  const [playerName, setPlayerName] = useState<string | null>(() => getActivePlayer());
+  const [personalBest, setPersonalBest] = useState<BestScore | undefined>(() =>
+    playerName ? getPlayerPuzzleBest(playerName, puzzleSize, imageId) : undefined
+  );
+  const [justSetPersonalBest, setJustSetPersonalBest] = useState(false);
 
   function initializeGame(image: PuzzleImageId, size: PuzzleSize): GameState {
     const totalTiles = gridSize * gridSize;
@@ -101,7 +116,7 @@ export default function Game() {
   }, []);
 
   const moveTile = useCallback((tilePosition: number) => {
-    if (gameState.isComplete) return;
+    if (gameState.isComplete || !playerName) return;
 
     setGameState((prev) => {
       const emptyIndex = prev.tiles.findIndex((t) => t.isEmpty);
@@ -131,7 +146,17 @@ export default function Game() {
       if (isWin && prev.startTime) {
         const finalTime = Math.floor((Date.now() - prev.startTime) / 1000);
         const finalMoves = prev.moves + 1;
-        saveBestScore(prev.puzzleSize, prev.selectedImage, finalTime, finalMoves);
+        const { isNewPersonalBest, best } = savePlayerBestScore(
+          playerName,
+          prev.puzzleSize,
+          prev.selectedImage,
+          finalTime,
+          finalMoves
+        );
+        setJustSetPersonalBest(isNewPersonalBest);
+        if (best) {
+          setPersonalBest(best);
+        }
         setTimeout(() => setShowWinModal(true), 300);
       }
 
@@ -142,7 +167,7 @@ export default function Game() {
         isComplete: isWin,
       };
     });
-  }, [gameState.isComplete, gridSize, checkWin]);
+  }, [gameState.isComplete, gridSize, checkWin, playerName]);
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -191,6 +216,7 @@ export default function Game() {
     setGameState(initializeGame(imageId, puzzleSize));
     setElapsedTime(0);
     setShowWinModal(false);
+    setJustSetPersonalBest(false);
   };
 
   const formatTime = (seconds: number) => {
@@ -200,15 +226,18 @@ export default function Game() {
   };
 
   useEffect(() => {
-    if (!playerNameFromQuery) {
+    const active = getActivePlayer();
+    if (!active) {
       setLocation("/");
+      return;
     }
-  }, [playerNameFromQuery, setLocation]);
+    setPlayerName(active);
+    setPersonalBest(getPlayerPuzzleBest(active, puzzleSize, imageId));
+  }, [setLocation, puzzleSize, imageId]);
 
-  const bestScore = getBestScores()[puzzleSize]?.[imageId];
   const imageSrc = puzzleImages[imageId].url;
   const imageName = puzzleImages[imageId].name;
-  const activePlayerName = playerNameFromQuery || "Explorer";
+  const activePlayerName = playerName || "Explorer";
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -217,14 +246,14 @@ export default function Game() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setLocation("/")}
+            onClick={() => setLocation("/select")}
             data-testid="button-back"
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
 
           <div className="flex flex-wrap items-center gap-4 md:gap-8 justify-center">
-            <Card className={cn("px-4 py-2 min-w-[140px] text-center", !playerNameFromQuery && "opacity-70")}>
+            <Card className={cn("px-4 py-2 min-w-[140px] text-center", !playerName && "opacity-70")}>
               <div className="text-xs text-muted-foreground">Player</div>
               <div className="text-lg font-semibold" data-testid="text-player-name-value">
                 {activePlayerName}
@@ -324,7 +353,7 @@ export default function Game() {
             </Card>
           </motion.div>
 
-          {bestScore && (
+          {personalBest && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -334,7 +363,7 @@ export default function Game() {
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-muted rounded-lg">
                 <Trophy className="w-4 h-4 text-primary" />
                 <span className="text-sm text-muted-foreground">
-                  Best: {formatTime(bestScore.time)} in {bestScore.moves} moves
+                  Personal best: {formatTime(personalBest.time)} in {personalBest.moves} moves
                 </span>
               </div>
             </motion.div>
@@ -351,12 +380,8 @@ export default function Game() {
         imageName={imageName}
         playerName={activePlayerName}
         onPlayAgain={handleRestart}
-        onChangeImage={() => setLocation("/")}
-        isNewBest={
-          !bestScore ||
-          elapsedTime < bestScore.time ||
-          (elapsedTime === bestScore.time && gameState.moves < bestScore.moves)
-        }
+        onChangeImage={() => setLocation("/select")}
+        isNewBest={justSetPersonalBest}
       />
     </div>
   );
