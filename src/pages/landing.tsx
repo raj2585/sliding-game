@@ -34,7 +34,6 @@ export default function Landing() {
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-10 px-6 py-12 md:px-10">
         <header className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-muted-foreground">
           <span>Jodhpur Puzzle</span>
-          <span>Season 01</span>
         </header>
 
         <div className="grid flex-1 gap-10 md:grid-cols-[1.05fr,0.95fr] items-center">
@@ -123,7 +122,7 @@ export default function Landing() {
 
         <footer className="text-xs uppercase tracking-[0.3em] text-muted-foreground flex justify-between">
           <span>Built in Rajasthan hues</span>
-          <span>Optimized for calm play</span>
+          <a href="https://github.com/raj2585" target="_blank" rel="noreferrer" className="hover:underline">raj2585</a>
         </footer>
       </div>
     </div>
