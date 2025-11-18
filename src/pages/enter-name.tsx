@@ -41,7 +41,10 @@ export default function EnterName() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/40 flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/40 flex flex-col items-center justify-start px-4 py-6">
+      <header className="w-full max-w-4xl flex items-center justify-between text-xs uppercase tracking-[0.3em] text-muted-foreground mb-4">
+        <button onClick={() => setLocation("/")} className="hover:underline">Jodhpur Puzzle</button>
+      </header>
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}

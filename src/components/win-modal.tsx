@@ -38,7 +38,7 @@ export function WinModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md" data-testid="modal-win">
+      <DialogContent className="max-w-md w-[95vw] max-h-[85vh] overflow-y-auto" data-testid="modal-win">
         <AnimatePresence>
           {open && (
             <motion.div
@@ -79,7 +79,7 @@ export function WinModal({
               </div>
 
               <Card className="overflow-hidden">
-                <img src={imageSrc} alt={imageName} className="w-full aspect-square object-cover" />
+                <img src={imageSrc} alt={imageName} className="w-full h-48 object-cover sm:h-auto sm:aspect-square" />
                 <div className="p-4 text-center bg-muted/30">
                   <p className="font-medium text-foreground">{imageName}</p>
                 </div>

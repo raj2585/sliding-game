@@ -41,7 +41,11 @@ export default function Home() {
         className="w-full max-w-4xl space-y-12"
       >
         <div className="text-center space-y-4">
-          <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground" data-testid="text-title">
+          <h1
+            className="font-serif text-4xl md:text-5xl font-bold text-foreground cursor-pointer"
+            onClick={() => setLocation("/")}
+            data-testid="text-title"
+          >
             Jodhpur Puzzle
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto" data-testid="text-subtitle">

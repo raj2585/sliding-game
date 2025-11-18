@@ -243,14 +243,22 @@ export default function Game() {
     <div className="min-h-screen bg-background flex flex-col">
       <header className="sticky top-0 z-10 bg-card border-b border-card-border p-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setLocation("/select")}
-            data-testid="button-back"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setLocation("/select")}
+              data-testid="button-back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <button
+              onClick={() => setLocation("/")}
+              className="text-xs uppercase tracking-[0.3em] text-muted-foreground hover:underline"
+            >
+              Jodhpur Puzzle
+            </button>
+          </div>
 
           <div className="flex flex-wrap items-center gap-4 md:gap-8 justify-center">
             <Card className={cn("px-4 py-2 min-w-[140px] text-center", !playerName && "opacity-70")}>
