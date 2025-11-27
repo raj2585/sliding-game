@@ -216,6 +216,13 @@ export default function Game() {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [gameState, gridSize, moveTile]);
 
+  const handleRestart = useCallback(() => {
+    setGameState(initializeGame(imageId, puzzleSize));
+    setElapsedTime(0);
+    setShowWinModal(false);
+    setJustSetPersonalBest(false);
+  }, [initializeGame, imageId, puzzleSize]);
+
   useEffect(() => {
     const handleShortcuts = (event: KeyboardEvent) => {
       if (event.defaultPrevented) return;
@@ -242,13 +249,6 @@ export default function Game() {
     window.addEventListener("keydown", handleShortcuts);
     return () => window.removeEventListener("keydown", handleShortcuts);
   }, [handleRestart]);
-
-  const handleRestart = useCallback(() => {
-    setGameState(initializeGame(imageId, puzzleSize));
-    setElapsedTime(0);
-    setShowWinModal(false);
-    setJustSetPersonalBest(false);
-  }, [initializeGame, imageId, puzzleSize]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
