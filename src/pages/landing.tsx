@@ -6,6 +6,7 @@ import { ArrowRight, Crown, Compass, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { puzzleImages } from "@shared/schema";
+import { BrandMark } from "@/components/logo";
 
 const highlights = [
   {
@@ -32,8 +33,8 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-[#fbf7f0] to-white">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-10 px-6 py-12 md:px-10">
-        <header className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-muted-foreground">
-          <button onClick={() => setLocation("/")} className="hover:underline">Jodhpur Puzzle</button>
+        <header className="flex items-center justify-between">
+          <BrandMark />
         </header>
 
         <div className="grid flex-1 gap-10 md:grid-cols-[1.05fr,0.95fr] items-center">

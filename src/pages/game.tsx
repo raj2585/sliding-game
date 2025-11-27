@@ -20,6 +20,7 @@ import {
   savePlayerBestScore,
 } from "@/lib/storage";
 import { cn } from "@/lib/utils";
+import { BrandMark } from "@/components/logo";
 
 function createSolvableShuffle(size: number): number[] {
   const totalTiles = size * size;
@@ -252,12 +253,7 @@ export default function Game() {
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <button
-              onClick={() => setLocation("/")}
-              className="text-xs uppercase tracking-[0.3em] text-muted-foreground hover:underline"
-            >
-              Jodhpur Puzzle
-            </button>
+            <BrandMark showText size={36} className="px-2 py-1" textClassName="text-[0.55rem]" />
           </div>
 
           <div className="flex flex-wrap items-center gap-4 md:gap-8 justify-center">

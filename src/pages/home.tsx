@@ -6,6 +6,7 @@ import { puzzleImages, type PuzzleImageId } from "@shared/schema";
 import { motion } from "framer-motion";
 import { UserCircle, LogOut } from "lucide-react";
 import { getActivePlayer } from "@/lib/storage";
+import { BrandMark } from "@/components/logo";
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -41,13 +42,12 @@ export default function Home() {
         className="w-full max-w-4xl space-y-12"
       >
         <div className="text-center space-y-4">
-          <h1
-            className="font-serif text-4xl md:text-5xl font-bold text-foreground cursor-pointer"
-            onClick={() => setLocation("/")}
-            data-testid="text-title"
-          >
-            Jodhpur Puzzle
-          </h1>
+          <BrandMark
+            orientation="column"
+            size={80}
+            className="mx-auto cursor-pointer"
+            textClassName="text-sm md:text-base font-semibold tracking-[0.4em]"
+          />
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto" data-testid="text-subtitle">
             Experience the beauty of Rajasthan's Blue City through an elegant sliding puzzle
           </p>

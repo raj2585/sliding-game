@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { puzzleImages } from "@shared/schema";
+import { BrandMark } from "@/components/logo";
 import {
   getActivePlayer,
   getLeaderboard,
@@ -42,8 +43,8 @@ export default function EnterName() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/40 flex flex-col items-center justify-start px-4 py-6">
-      <header className="w-full max-w-4xl flex items-center justify-between text-xs uppercase tracking-[0.3em] text-muted-foreground mb-4">
-        <button onClick={() => setLocation("/")} className="hover:underline">Jodhpur Puzzle</button>
+      <header className="w-full max-w-4xl flex items-center justify-between mb-4">
+        <BrandMark />
       </header>
       <motion.div
         initial={{ opacity: 0, y: 24 }}
