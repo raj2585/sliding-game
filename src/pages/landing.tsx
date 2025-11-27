@@ -123,7 +123,14 @@ export default function Landing() {
         </div>
 
         <footer className="text-xs uppercase tracking-[0.3em] text-muted-foreground flex justify-between">
-          <span>Built in Rajasthan hues</span>
+          <a
+            href="https://drive.google.com/file/d/1stTTeISSZcoZ6WLc43Y2XCPNmceoovVY/view?usp=drive_link"
+            target="_blank"
+            rel="noreferrer"
+            className="hover:underline"
+          >
+            View project report
+          </a>
           <a href="https://github.com/raj2585" target="_blank" rel="noreferrer" className="hover:underline">raj2585</a>
         </footer>
       </div>
