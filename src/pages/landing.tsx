@@ -63,11 +63,12 @@ export default function Landing() {
                 className="h-14 px-10 text-lg"
                 onClick={() => setLocation("/enter")}
                 data-testid="button-begin"
+                aria-describedby="landing-begin-hint"
               >
                 Begin
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <div className="flex flex-col justify-center">
+              <div className="flex flex-col justify-center" id="landing-begin-hint">
                 <span className="text-sm font-semibold text-foreground">One tap away</span>
                 <span className="text-sm text-muted-foreground">Set your name, then pick a landmark</span>
               </div>

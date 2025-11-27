@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useId } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Trophy, Users, ArrowRight } from "lucide-react";
@@ -23,6 +23,9 @@ export default function EnterName() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const leaderboard = useMemo(() => getLeaderboard(), [username]);
+  const helperId = useId();
+  const infoId = `${helperId}-info`;
+  const errorId = error ? `${helperId}-error` : undefined;
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -57,7 +60,7 @@ export default function EnterName() {
             <p className="uppercase tracking-wide text-xs text-primary font-semibold">
               Welcome to the Jodhpur Puzzle League
             </p>
-            <h1 className="font-serif text-4xl text-foreground">
+            <h1 className="font-serif text-4xl text-foreground" id={`${helperId}-heading`}>
               Claim your unique explorer name
             </h1>
             <p className="text-muted-foreground text-sm">
@@ -83,8 +86,21 @@ export default function EnterName() {
                   if (error) setError("");
                 }}
                 placeholder="e.g. DesertFox, BlueCityDiva"
+                aria-describedby={[infoId, errorId].filter(Boolean).join(" ") || undefined}
               />
-              {error && <p className="text-sm text-destructive">{error}</p>}
+              <div id={infoId} className="text-xs text-muted-foreground">
+                At least {MIN_NAME_LENGTH} characters, unique on the leaderboard.
+              </div>
+              {error && (
+                <p
+                  id={errorId}
+                  className="text-sm text-destructive"
+                  role="alert"
+                  aria-live="assertive"
+                >
+                  {error}
+                </p>
+              )}
             </div>
 
             <Button
@@ -92,10 +108,14 @@ export default function EnterName() {
               className="w-full h-12 text-lg"
               disabled={submitting}
               data-testid="button-enter-gallery"
+              aria-describedby={`${helperId}-submit-hint`}
             >
               Enter the Gallery
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
+            <p id={`${helperId}-submit-hint`} className="text-xs text-muted-foreground">
+              Submitting stores your name locally so you can track scores.
+            </p>
           </form>
 
           <div className="rounded-xl bg-muted/40 p-4 border border-muted">
@@ -111,25 +131,30 @@ export default function EnterName() {
           </div>
         </Card>
 
-        <Card className="p-6 bg-card/80 backdrop-blur shadow-xl border-muted">
+        <Card
+          className="p-6 bg-card/80 backdrop-blur shadow-xl border-muted"
+          aria-labelledby={`${helperId}-leaderboard-title`}
+        >
           <div className="flex items-center gap-3 mb-6">
-            <Trophy className="w-6 h-6 text-primary" />
+            <Trophy className="w-6 h-6 text-primary" aria-hidden="true" />
             <div>
               <p className="text-xs uppercase tracking-wide text-muted-foreground">
                 Global Leaderboard
               </p>
-              <p className="font-semibold text-lg text-foreground">Top explorers</p>
+              <p className="font-semibold text-lg text-foreground" id={`${helperId}-leaderboard-title`}>
+                Top explorers
+              </p>
             </div>
           </div>
 
           {leaderboard.length === 0 ? (
-            <div className="text-center py-10 text-muted-foreground">
+            <div className="text-center py-10 text-muted-foreground" role="status" aria-live="polite">
               <p>No scores yet. Be the first to set a record!</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <ol className="space-y-4" aria-live="polite">
               {leaderboard.slice(0, 8).map((entry, index) => (
-                <div
+                <li
                   key={entry.username}
                   className="rounded-lg border border-border/60 p-4 flex items-center justify-between gap-4"
                 >
@@ -141,7 +166,7 @@ export default function EnterName() {
                       {entry.puzzleSize} · {puzzleImages[entry.imageId].name}
                     </p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right" aria-label={`Best time ${formatTime(entry.bestTime)} in ${entry.bestMoves} moves`}>
                     <p className="font-mono text-lg text-foreground">
                       {formatTime(entry.bestTime)}
                     </p>
@@ -149,9 +174,9 @@ export default function EnterName() {
                       {entry.bestMoves} moves
                     </p>
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
+            </ol>
           )}
         </Card>
       </motion.div>

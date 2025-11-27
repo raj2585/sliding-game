@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useId } from "react";
 import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const [selectedImage, setSelectedImage] = useState<PuzzleImageId | null>(null);
   const [playerName, setPlayerName] = useState<string | null>(null);
+  const startHelpTextId = useId();
 
   useEffect(() => {
     const stored = getActivePlayer();
@@ -117,16 +118,22 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex justify-center pt-4">
+          <div className="flex flex-col items-center justify-center gap-2 pt-4 text-center">
             <Button
               size="lg"
               disabled={isStartDisabled}
               onClick={handleStartGame}
               className="min-w-[200px] h-14 text-lg"
               data-testid="button-start-game"
+              aria-describedby={isStartDisabled ? startHelpTextId : undefined}
             >
               Start Puzzle
             </Button>
+            {isStartDisabled && (
+              <p id={startHelpTextId} className="text-sm text-muted-foreground max-w-sm">
+                Select a landmark above to enable the Start Puzzle button.
+              </p>
+            )}
           </div>
         </div>
       </motion.div>

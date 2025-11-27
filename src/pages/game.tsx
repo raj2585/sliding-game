@@ -71,6 +71,30 @@ export default function Game() {
   const puzzleSize: PuzzleSize = "4x4";
   const gridSize = 4;
 
+  const initializeGame = useCallback(
+    (image: PuzzleImageId, size: PuzzleSize): GameState => {
+      const totalTiles = gridSize * gridSize;
+      const shuffled = createSolvableShuffle(gridSize);
+
+      const tiles: PuzzleTile[] = shuffled.map((tileId, position) => ({
+        id: tileId,
+        position: position,
+        correctPosition: tileId,
+        isEmpty: tileId === totalTiles - 1,
+      }));
+
+      return {
+        tiles,
+        moves: 0,
+        startTime: Date.now(),
+        isComplete: false,
+        selectedImage: image,
+        puzzleSize: size,
+      };
+    },
+    [gridSize],
+  );
+
   const [gameState, setGameState] = useState<GameState>(() => initializeGame(imageId, puzzleSize));
   const [elapsedTime, setElapsedTime] = useState(0);
   const [showPreview, setShowPreview] = useState(false);
@@ -80,27 +104,6 @@ export default function Game() {
     playerName ? getPlayerPuzzleBest(playerName, puzzleSize, imageId) : undefined
   );
   const [justSetPersonalBest, setJustSetPersonalBest] = useState(false);
-
-  function initializeGame(image: PuzzleImageId, size: PuzzleSize): GameState {
-    const totalTiles = gridSize * gridSize;
-    const shuffled = createSolvableShuffle(gridSize);
-    
-    const tiles: PuzzleTile[] = shuffled.map((tileId, position) => ({
-      id: tileId,
-      position: position,
-      correctPosition: tileId,
-      isEmpty: tileId === totalTiles - 1,
-    }));
-
-    return {
-      tiles,
-      moves: 0,
-      startTime: Date.now(),
-      isComplete: false,
-      selectedImage: image,
-      puzzleSize: size,
-    };
-  }
 
   useEffect(() => {
     if (!gameState.startTime || gameState.isComplete) return;
@@ -213,12 +216,39 @@ export default function Game() {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [gameState, gridSize, moveTile]);
 
-  const handleRestart = () => {
+  useEffect(() => {
+    const handleShortcuts = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return;
+      const target = event.target as HTMLElement | null;
+      if (
+        target &&
+        (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) ||
+          target.getAttribute("contenteditable") === "true")
+      ) {
+        return;
+      }
+
+      if (event.key.toLowerCase() === "r") {
+        event.preventDefault();
+        handleRestart();
+      }
+
+      if (event.key.toLowerCase() === "p") {
+        event.preventDefault();
+        setShowPreview((prev) => !prev);
+      }
+    };
+
+    window.addEventListener("keydown", handleShortcuts);
+    return () => window.removeEventListener("keydown", handleShortcuts);
+  }, [handleRestart]);
+
+  const handleRestart = useCallback(() => {
     setGameState(initializeGame(imageId, puzzleSize));
     setElapsedTime(0);
     setShowWinModal(false);
     setJustSetPersonalBest(false);
-  };
+  }, [initializeGame, imageId, puzzleSize]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -283,6 +313,9 @@ export default function Game() {
                 size="icon"
                 className="relative"
                 data-testid="button-preview"
+                aria-label="Preview solved puzzle"
+                aria-pressed={showPreview}
+                aria-keyshortcuts="P"
               >
                 <Eye className="w-5 h-5" />
               </Button>
@@ -323,6 +356,8 @@ export default function Game() {
             size="icon"
             onClick={handleRestart}
             data-testid="button-restart"
+            aria-label="Restart puzzle"
+            aria-keyshortcuts="R"
           >
             <RotateCcw className="w-5 h-5" />
           </Button>
